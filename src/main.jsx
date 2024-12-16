@@ -14,7 +14,7 @@ root.render(
             <ThemeProvider>
                 <ProgressProvider>
                     {/* <CubeStateProvider> */}
-                        <App />
+                    <App />
                     {/* </CubeStateProvider> */}
                 </ProgressProvider>
             </ThemeProvider>

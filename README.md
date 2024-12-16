@@ -11,6 +11,8 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 - Practice mode with timer
 - Progress tracking
 - Mobile-responsive design
+- Theme customization
+- Internationalization support
 
 ## Technical Stack
 
@@ -18,7 +20,9 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 - Three.js for 3D cube rendering
 - Vite for build tooling
 - CSS modules for styling
+- Context API for state management
 - Local storage for progress saving
+- i18n for localization
 
 ## Planned Features
 
@@ -32,6 +36,9 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
     - ZZ method
 - [ ] Achievement system
 - [ ] Offline support
+- [ ] AR/VR support
+- [ ] Voice commands
+- [ ] Social media sharing
 
 ## Design Goals
 
@@ -40,6 +47,9 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 3. Progressive learning curve
 4. Minimal loading times
 5. Accessible on all devices
+6. Theme consistency
+7. Responsive feedback
+8. Cross-cultural design
 
 ## Project Structure
 
@@ -50,12 +60,12 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
     - Tutorial.jsx
     - Controls.jsx
     - Timer.jsx
+  /context
+    - LocaleContext.jsx
+    - ProgressContext.jsx
+    - ThemeContext.jsx
   /hooks
-    - useRotation.js
-    - useCubeState.js
-  /utils
-    - algorithms.js
-    - validation.js
+    - useCubeState.jsx
   /styles
     - modules/
 ```
@@ -64,9 +74,12 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 
 - Optimized 3D rendering
 - Lazy loading of advanced features
-- Efficient state management
-- Minimal bundle size
-- Browser compatibility
+- Context-based state management
+- Code splitting
+- Asset optimization
+- Browser caching
+- Network resilience
+- Memory management
 
 ## Accessibility
 
@@ -75,15 +88,51 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 - High contrast mode
 - Customizable animation speeds
 - Multi-language support
+- RTL layout support
+- Color blind modes
+- Focus management
+- ARIA compliance
+
+## User Experience
+
+- Haptic feedback
+- Interactive tutorials
+- Progress indicators
+- Error recovery
+- Offline capabilities
+- Cross-device synchronization
+- Gesture controls
+- Smart defaults
 
 ## Development Roadmap
 
 1. Core cube simulation
 2. Basic move controls
-3. Beginner tutorial
-4. Progress tracking
-5. Advanced algorithms
-6. Community features
+3. Theme system implementation
+4. Localization framework
+5. Beginner tutorial
+6. Progress tracking
+7. Advanced algorithms
+8. Community features
+9. AR/VR integration
+10. Mobile optimization
+
+## Browser Support
+
+- Chrome (latest 2 versions)
+- Firefox (latest 2 versions)
+- Safari (latest 2 versions)
+- Edge (latest 2 versions)
+- Mobile browsers
+
+## Security Considerations
+
+- Input validation
+- XSS prevention
+- CSRF protection
+- Secure data storage
+- API rate limiting
+- Content security policy
 
 ## License
 

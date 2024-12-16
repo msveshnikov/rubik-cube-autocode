@@ -27,7 +27,7 @@ const Timer = memo(({ active }) => {
             }, 10);
         }
         return () => clearInterval(interval);
-    }, [isRunning]);
+    }, [isRunning, time]);
 
     useEffect(() => {
         if (active) {

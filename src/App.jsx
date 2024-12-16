@@ -1,8 +1,8 @@
 import { useState, lazy, Suspense, useContext } from 'react';
 import './App.css';
-import  ThemeContext  from './context/ThemeContext';
-import  LocaleContext  from './context/LocaleContext';
-import  ProgressContext  from './context/ProgressContext';
+import ThemeContext from './context/ThemeContext';
+import LocaleContext from './context/LocaleContext';
+import ProgressContext from './context/ProgressContext';
 
 const Cube = lazy(() => import('./components/Cube'));
 const Tutorial = lazy(() => import('./components/Tutorial'));
@@ -61,18 +61,10 @@ function App() {
         });
     };
 
-    const handlePatternChange = (pattern) => {
-        setCubeState((prev) => ({
-            ...prev,
-            pattern,
-            moves: []
-        }));
-    };
-
     return (
         <div className={`app ${theme} ${settings.highContrast ? 'high-contrast' : ''}`}>
             <header className="app-header">
-                <h1>Rubik's Cube Simulator & Tutor</h1>
+                <h1>Rubik&apos;s Cube Simulator & Tutor</h1>
                 <nav className="app-nav">
                     <button onClick={() => toggleMode('tutorial')}>Tutorial</button>
                     <button onClick={() => toggleMode('practice')}>Practice</button>

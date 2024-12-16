@@ -125,7 +125,7 @@ const Cube = ({ onMove, settings }) => {
             mountRef.current?.removeChild(renderer?.domElement);
             renderer?.dispose();
         };
-    }, [settings.highContrast]);
+    }, [camera, controls, renderer, scene, settings.highContrast]);
 
     const rotateFace = (face, angle) => {
         if (isAnimating || !cubeGroup) return;

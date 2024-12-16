@@ -26,6 +26,7 @@ const Controls = ({ onMove }) => {
                 });
             }
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [onMove]
     );
 
