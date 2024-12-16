@@ -116,24 +116,3 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 8. Community features
 9. AR/VR integration
 10. Mobile optimization
-
-## Browser Support
-
-- Chrome (latest 2 versions)
-- Firefox (latest 2 versions)
-- Safari (latest 2 versions)
-- Edge (latest 2 versions)
-- Mobile browsers
-
-## Security Considerations
-
-- Input validation
-- XSS prevention
-- CSRF protection
-- Secure data storage
-- API rate limiting
-- Content security policy
-
-## License
-
-MIT License

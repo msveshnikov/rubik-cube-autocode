@@ -1,203 +1,247 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubik's Cube Simulator & Tutor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            overflow-x: hidden;
-        }
-        .hero {
-            background: linear-gradient(135deg, #6366f1, #a855f7),
-                        url('https://images.unsplash.com/photo-1577076969170-e7c4f16e95d1?w=1600') center/cover;
-            background-blend-mode: multiply;
-            color: white;
-            padding: 8rem 2rem;
-            text-align: center;
-            position: relative;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            left: 0;
-            right: 0;
-            height: 100px;
-            background: white;
-            clip-path: polygon(0 50%, 100% 0, 100% 100%, 0% 100%);
-        }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .hero p { font-size: 1.3rem; max-width: 700px; margin: 0 auto 2rem; }
-        .cta-button {
-            background: #fff;
-            color: #6366f1;
-            padding: 1.2rem 2.5rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-        .features {
-            padding: 6rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            background: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600') center/cover fixed;
-        }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2.5rem;
-            margin-top: 3rem;
-        }
-        .feature-card {
-            padding: 2.5rem;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.3s;
-            backdrop-filter: blur(10px);
-        }
-        .feature-card:hover { transform: translateY(-10px); }
-        .pricing {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            padding: 6rem 2rem;
-            position: relative;
-        }
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
-            max-width: 1200px;
-            margin: 3rem auto 0;
-        }
-        .pricing-card {
-            background: white;
-            padding: 3rem 2rem;
-            border-radius: 20px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: all 0.3s;
-        }
-        .pricing-card:hover {
-            transform: scale(1.03);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-        .price {
-            font-size: 3rem;
-            font-weight: 700;
-            margin: 1.5rem 0;
-            color: #6366f1;
-        }
-        .footer {
-            background: #1f2937 url('https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=1600') center/cover;
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-            position: relative;
-        }
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(31, 41, 55, 0.9);
-        }
-        .footer p {
-            position: relative;
-            z-index: 1;
-        }
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .features-grid, .pricing-grid {
-                grid-template-columns: 1fr;
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Rubik's Cube Simulator & Tutor</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-            .hero { padding: 6rem 1rem; }
-            .features, .pricing { padding: 4rem 1rem; }
-        }
-    </style>
-</head>
-<body>
-    <section class="hero">
-        <h1>Master the Rubik's Cube in 2 Minutes</h1>
-        <p>Interactive 3D simulator with step-by-step tutorials, real-time validation, and progress tracking</p>
-        <a href="#" class="cta-button">Start Learning Now</a>
-    </section>
+            body {
+                font-family: 'Poppins', sans-serif;
+                line-height: 1.6;
+                color: #333;
+                overflow-x: hidden;
+            }
+            .hero {
+                background:
+                    linear-gradient(135deg, #6366f1, #a855f7),
+                    url('https://plus.unsplash.com/premium_photo-1679517155620-8048e22078b1?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+                        center/cover;
+                background-blend-mode: multiply;
+                color: white;
+                padding: 8rem 2rem;
+                text-align: center;
+                position: relative;
+            }
+            .hero::before {
+                content: '';
+                position: absolute;
+                bottom: -50px;
+                left: 0;
+                right: 0;
+                height: 100px;
+                background: white;
+                clip-path: polygon(0 50%, 100% 0, 100% 100%, 0% 100%);
+            }
+            .hero h1 {
+                font-size: 3.5rem;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .hero p {
+                font-size: 1.3rem;
+                max-width: 700px;
+                margin: 0 auto 2rem;
+            }
+            .cta-button {
+                background: #fff;
+                color: #6366f1;
+                padding: 1.2rem 2.5rem;
+                border-radius: 30px;
+                text-decoration: none;
+                font-weight: 600;
+                display: inline-block;
+                transition: all 0.3s;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+            .cta-button:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            }
+            .features {
+                padding: 6rem 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+                background: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600')
+                    center/cover fixed;
+            }
+            .features-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 2.5rem;
+                margin-top: 3rem;
+            }
+            .feature-card {
+                padding: 2.5rem;
+                border-radius: 15px;
+                background: rgba(255, 255, 255, 0.95);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                transition: transform 0.3s;
+                backdrop-filter: blur(10px);
+            }
+            .feature-card:hover {
+                transform: translateY(-10px);
+            }
+            .pricing {
+                background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+                padding: 6rem 2rem;
+                position: relative;
+            }
+            .pricing-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2.5rem;
+                max-width: 1200px;
+                margin: 3rem auto 0;
+            }
+            .pricing-card {
+                background: white;
+                padding: 3rem 2rem;
+                border-radius: 20px;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                transition: all 0.3s;
+            }
+            .pricing-card:hover {
+                transform: scale(1.03);
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            }
+            .price {
+                font-size: 3rem;
+                font-weight: 700;
+                margin: 1.5rem 0;
+                color: #6366f1;
+            }
+            .footer {
+                background: #1f2937
+                    url('https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=1600')
+                    center/cover;
+                color: white;
+                padding: 3rem 2rem;
+                text-align: center;
+                position: relative;
+            }
+            .footer::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(31, 41, 55, 0.9);
+            }
+            .footer p {
+                position: relative;
+                z-index: 1;
+            }
+            @media (max-width: 768px) {
+                .hero h1 {
+                    font-size: 2.5rem;
+                }
+                .features-grid,
+                .pricing-grid {
+                    grid-template-columns: 1fr;
+                }
+                .hero {
+                    padding: 6rem 1rem;
+                }
+                .features,
+                .pricing {
+                    padding: 4rem 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <section class="hero">
+            <h1>Master the Rubik's Cube in 2 Minutes</h1>
+            <p>
+                Interactive 3D simulator with step-by-step tutorials, real-time validation, and
+                progress tracking
+            </p>
+            <a href="#" class="cta-button">Start Learning Now</a>
+        </section>
 
-    <section class="features">
-        <h2 style="text-align: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Key Features</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>3D Interactive Simulation</h3>
-                <p>Realistic cube manipulation with smooth controls and animations</p>
+        <section class="features">
+            <h2
+                style="
+                    text-align: center;
+                    color: white;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                "
+            >
+                Key Features
+            </h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>3D Interactive Simulation</h3>
+                    <p>Realistic cube manipulation with smooth controls and animations</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Step-by-Step Tutorial</h3>
+                    <p>Learn from beginner to advanced with guided instructions</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Progress Tracking</h3>
+                    <p>Monitor your improvement and unlock achievements</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Multiple Methods</h3>
+                    <p>Master CFOP, Roux, and ZZ solving techniques</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <h3>Step-by-Step Tutorial</h3>
-                <p>Learn from beginner to advanced with guided instructions</p>
-            </div>
-            <div class="feature-card">
-                <h3>Progress Tracking</h3>
-                <p>Monitor your improvement and unlock achievements</p>
-            </div>
-            <div class="feature-card">
-                <h3>Multiple Methods</h3>
-                <p>Master CFOP, Roux, and ZZ solving techniques</p>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="pricing">
-        <h2 style="text-align: center;">Pricing Plans</h2>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Basic</h3>
-                <div class="price">Free</div>
-                <ul style="list-style: none;">
-                    <li>3D Cube Simulation</li>
-                    <li>Basic Tutorials</li>
-                    <li>Progress Tracking</li>
-                    <li>Community Access</li>
-                </ul>
-                <a href="#" class="cta-button" style="margin-top: 2rem;">Get Started</a>
+        <section class="pricing">
+            <h2 style="text-align: center">Pricing Plans</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Basic</h3>
+                    <div class="price">Free</div>
+                    <ul style="list-style: none">
+                        <li>3D Cube Simulation</li>
+                        <li>Basic Tutorials</li>
+                        <li>Progress Tracking</li>
+                        <li>Community Access</li>
+                    </ul>
+                    <a href="#" class="cta-button" style="margin-top: 2rem">Get Started</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Pro</h3>
+                    <div class="price">$9.99</div>
+                    <ul style="list-style: none">
+                        <li>All Basic Features</li>
+                        <li>Advanced Algorithms</li>
+                        <li>Speed Solving Techniques</li>
+                        <li>Custom Patterns</li>
+                    </ul>
+                    <a href="#" class="cta-button" style="margin-top: 2rem">Upgrade Now</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Master</h3>
+                    <div class="price">$19.99</div>
+                    <ul style="list-style: none">
+                        <li>All Pro Features</li>
+                        <li>AR/VR Support</li>
+                        <li>1-on-1 Coaching</li>
+                        <li>Priority Support</li>
+                    </ul>
+                    <a href="#" class="cta-button" style="margin-top: 2rem">Go Master</a>
+                </div>
             </div>
-            <div class="pricing-card">
-                <h3>Pro</h3>
-                <div class="price">$9.99</div>
-                <ul style="list-style: none;">
-                    <li>All Basic Features</li>
-                    <li>Advanced Algorithms</li>
-                    <li>Speed Solving Techniques</li>
-                    <li>Custom Patterns</li>
-                </ul>
-                <a href="#" class="cta-button" style="margin-top: 2rem;">Upgrade Now</a>
-            </div>
-            <div class="pricing-card">
-                <h3>Master</h3>
-                <div class="price">$19.99</div>
-                <ul style="list-style: none;">
-                    <li>All Pro Features</li>
-                    <li>AR/VR Support</li>
-                    <li>1-on-1 Coaching</li>
-                    <li>Priority Support</li>
-                </ul>
-                <a href="#" class="cta-button" style="margin-top: 2rem;">Go Master</a>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <footer class="footer">
-        <p>© 2024 Rubik's Cube Simulator & Tutor. All rights reserved.</p>
-    </footer>
-</body>
+        <footer class="footer">
+            <p>© 2024 Rubik's Cube Simulator & Tutor. All rights reserved.</p>
+        </footer>
+    </body>
 </html>

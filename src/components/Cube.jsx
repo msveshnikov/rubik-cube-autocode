@@ -76,29 +76,29 @@ const Cube = ({ onMove, settings }) => {
         const getFaceColor = (x, y, z) => {
             if (settings.highContrast) {
                 return z === 1
-                    ? 0xff0000 // red
+                    ? 0xff0000
                     : z === -1
-                      ? 0xff8c00 // orange
+                      ? 0xff8c00
                       : y === 1
-                        ? 0xffffff // white
+                        ? 0xffffff
                         : y === -1
-                          ? 0xffff00 // yellow
+                          ? 0xffff00
                           : x === 1
-                            ? 0x00ff00 // green
-                            : 0x0000ff; // blue
+                            ? 0x00ff00
+                            : 0x0000ff;
             }
 
             return z === 1
-                ? 0xff0000 // red
+                ? 0xff0000
                 : z === -1
-                  ? 0xff8c00 // orange
+                  ? 0xff8c00
                   : y === 1
-                    ? 0xffffff // white
+                    ? 0xffffff
                     : y === -1
-                      ? 0xffff00 // yellow
+                      ? 0xffff00
                       : x === 1
-                        ? 0x00ff00 // green
-                        : 0x0000ff; // blue
+                        ? 0x00ff00
+                        : 0x0000ff;
         };
 
         const animate = () => {
@@ -120,14 +120,19 @@ const Cube = ({ onMove, settings }) => {
         init();
         window.addEventListener('resize', handleResize);
 
+        const currentRenderer = renderer;
+        const currentMount = mountRef.current;
+
         return () => {
             window.removeEventListener('resize', handleResize);
-            mountRef.current?.removeChild(renderer?.domElement);
-            renderer?.dispose();
+            if (currentMount && currentRenderer) {
+                currentMount.removeChild(currentRenderer.domElement);
+                currentRenderer.dispose();
+            }
         };
     }, [camera, controls, renderer, scene, settings.highContrast]);
 
-    const rotateFace = (face, angle) => {
+    const handleMove = (face) => {
         if (isAnimating || !cubeGroup) return;
         setIsAnimating(true);
 
