@@ -6,16 +6,15 @@ import { useCubeState } from '../hooks/useCubeState';
 
 const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
     const mountRef = useRef(null);
+    const rendererRef = useRef(null);
     const [scene, setScene] = useState(null);
     const [camera, setCamera] = useState(null);
-    const [renderer, setRenderer] = useState(null);
     const [cubeGroup, setCubeGroup] = useState(null);
     const [controls, setControls] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [raycaster] = useState(new THREE.Raycaster());
     const [mouse] = useState(new THREE.Vector2());
     const { state, rotateFace } = useCubeState();
-    const [touchStart, setTouchStart] = useState(null);
 
     const createCubelet = useCallback(
         (x, y, z, size, gap, colors) => {
@@ -44,35 +43,35 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
         const group = new THREE.Group();
         const size = 1;
         const gap = 0.1;
-        const colors =
-            pattern === 'classic'
-                ? {
-                      right: 0xff0000,
-                      left: 0xff8c00,
-                      top: 0xffffff,
-                      bottom: 0xffff00,
-                      front: 0x00ff00,
-                      back: 0x0000ff
-                  }
-                : {
-                      right: 0x00ff00,
-                      left: 0x0000ff,
-                      top: 0xff0000,
-                      bottom: 0xff8c00,
-                      front: 0xffffff,
-                      back: 0xffff00
-                  };
+
+        const colorScheme = settings.colorBlindMode
+            ? {
+                  right: 0x4363d8,
+                  left: 0x911eb4,
+                  top: 0xf58231,
+                  bottom: 0x3cb44b,
+                  front: 0xe6194b,
+                  back: 0xffe119
+              }
+            : {
+                  right: pattern === 'classic' ? 0xff0000 : 0x00ff00,
+                  left: pattern === 'classic' ? 0xff8c00 : 0x0000ff,
+                  top: pattern === 'classic' ? 0xffffff : 0xff0000,
+                  bottom: pattern === 'classic' ? 0xffff00 : 0xff8c00,
+                  front: pattern === 'classic' ? 0x00ff00 : 0xffffff,
+                  back: pattern === 'classic' ? 0x0000ff : 0xffff00
+              };
 
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
                     const cubeColors = [
-                        x === 1 ? colors.right : 0x282828,
-                        x === -1 ? colors.left : 0x282828,
-                        y === 1 ? colors.top : 0x282828,
-                        y === -1 ? colors.bottom : 0x282828,
-                        z === 1 ? colors.front : 0x282828,
-                        z === -1 ? colors.back : 0x282828
+                        x === 1 ? colorScheme.right : 0x282828,
+                        x === -1 ? colorScheme.left : 0x282828,
+                        y === 1 ? colorScheme.top : 0x282828,
+                        y === -1 ? colorScheme.bottom : 0x282828,
+                        z === 1 ? colorScheme.front : 0x282828,
+                        z === -1 ? colorScheme.back : 0x282828
                     ];
                     const cubelet = createCubelet(x, y, z, size, gap, cubeColors);
                     group.add(cubelet);
@@ -80,30 +79,40 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
             }
         }
         return group;
-    }, [createCubelet, pattern]);
+    }, [createCubelet, pattern, settings.colorBlindMode]);
 
     const handleInteractionStart = useCallback(
         (event) => {
-            if (isAnimating || !cubeGroup) return;
+            if (isAnimating || !cubeGroup || !rendererRef.current) return;
 
             const coords = event.touches ? event.touches[0] : event;
-            const rect = renderer.domElement.getBoundingClientRect();
+            const rect = rendererRef.current.domElement.getBoundingClientRect();
             mouse.x = ((coords.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((coords.clientY - rect.top) / rect.height) * 2 + 1;
-
-            if (event.touches) {
-                setTouchStart({ x: coords.clientX, y: coords.clientY });
-            }
 
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(cubeGroup.children);
 
             if (intersects.length > 0) {
                 const face = determineFace(intersects[0]);
-                if (face) handleMove(face);
+                if (face && (!tutorialMode || state.moves.includes(face))) {
+                    if (settings.hapticFeedback && window.navigator.vibrate) {
+                        window.navigator.vibrate(50);
+                    }
+                    handleMove(face);
+                }
             }
         },
-        [camera, cubeGroup, isAnimating, mouse, raycaster, renderer]
+        [
+            camera,
+            cubeGroup,
+            isAnimating,
+            mouse,
+            raycaster,
+            state.moves,
+            tutorialMode,
+            settings.hapticFeedback
+        ]
     );
 
     const determineFace = (intersection) => {
@@ -120,7 +129,7 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
     };
 
     const animateRotation = useCallback(
-        async (face, angle) => {
+        async (face) => {
             return new Promise((resolve) => {
                 const startRotation = cubeGroup.rotation.clone();
                 const targetRotation = startRotation.clone();
@@ -155,16 +164,14 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
 
     const handleMove = useCallback(
         async (face) => {
-            if (isAnimating || !cubeGroup || (tutorialMode && !state.moves.includes(face))) return;
+            if (isAnimating || !cubeGroup) return;
             setIsAnimating(true);
-
-            await animateRotation(face, Math.PI / 2);
+            await animateRotation(face);
             rotateFace(face, 'clockwise');
             onMove(face);
-
             setIsAnimating(false);
         },
-        [animateRotation, cubeGroup, isAnimating, onMove, rotateFace, state.moves, tutorialMode]
+        [animateRotation, cubeGroup, isAnimating, onMove, rotateFace]
     );
 
     useEffect(() => {
@@ -185,9 +192,15 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
                 alpha: true,
                 powerPreference: 'high-performance'
             });
+            rendererRef.current = newRenderer;
             newRenderer.setSize(window.innerWidth, window.innerHeight);
+            newRenderer.setPixelRatio(window.devicePixelRatio);
             newRenderer.shadowMap.enabled = true;
             newRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            if (mountRef.current.firstChild) {
+                mountRef.current.removeChild(mountRef.current.firstChild);
+            }
             mountRef.current.appendChild(newRenderer.domElement);
 
             const newControls = new OrbitControls(newCamera, newRenderer.domElement);
@@ -197,11 +210,11 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
             newControls.enablePan = false;
 
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            newScene.add(ambientLight);
-
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(10, 10, 10);
             directionalLight.castShadow = true;
+
+            newScene.add(ambientLight);
             newScene.add(directionalLight);
 
             const group = createCube();
@@ -209,53 +222,50 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
 
             setScene(newScene);
             setCamera(newCamera);
-            setRenderer(newRenderer);
             setCubeGroup(group);
             setControls(newControls);
 
             const element = newRenderer.domElement;
             element.addEventListener('mousedown', handleInteractionStart);
-            element.addEventListener('touchstart', handleInteractionStart);
+            element.addEventListener('touchstart', handleInteractionStart, { passive: true });
 
             return () => {
                 element.removeEventListener('mousedown', handleInteractionStart);
                 element.removeEventListener('touchstart', handleInteractionStart);
+                newRenderer.dispose();
+                newControls.dispose();
             };
         };
 
         const cleanup = init();
         return () => {
             if (cleanup) cleanup();
-            if (mountRef.current && renderer) {
-                mountRef.current.removeChild(renderer.domElement);
-                renderer.dispose();
-            }
         };
-    }, [createCube, handleInteractionStart, renderer, settings.highContrast]);
+    }, [createCube, handleInteractionStart, settings.highContrast]);
 
     useEffect(() => {
         const animate = () => {
             requestAnimationFrame(animate);
             if (controls) controls.update();
-            if (renderer && scene && camera) {
-                renderer.render(scene, camera);
+            if (rendererRef.current && scene && camera) {
+                rendererRef.current.render(scene, camera);
             }
         };
         animate();
-    }, [camera, controls, renderer, scene]);
+    }, [camera, controls, scene]);
 
     useEffect(() => {
         const handleResize = () => {
-            if (camera && renderer) {
+            if (camera && rendererRef.current) {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                rendererRef.current.setSize(window.innerWidth, window.innerHeight);
             }
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [camera, renderer]);
+    }, [camera]);
 
     return <div ref={mountRef} style={{ width: '100%', height: '100%' }} />;
 };
@@ -264,7 +274,9 @@ Cube.propTypes = {
     onMove: PropTypes.func.isRequired,
     settings: PropTypes.shape({
         animationSpeed: PropTypes.number,
-        highContrast: PropTypes.bool
+        highContrast: PropTypes.bool,
+        hapticFeedback: PropTypes.bool,
+        colorBlindMode: PropTypes.bool
     }).isRequired,
     pattern: PropTypes.string,
     tutorialMode: PropTypes.bool

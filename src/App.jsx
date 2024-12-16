@@ -33,8 +33,18 @@ function App() {
         hapticFeedback: true,
         colorBlindMode: false,
         autoRotate: false,
-        showHints: true
+        showHints: true,
+        voiceCommands: false,
+        gestureControls: true,
+        rtlLayout: false
     });
+
+    useEffect(() => {
+        const savedSettings = localStorage.getItem('cubeSettings');
+        if (savedSettings) {
+            setSettings(JSON.parse(savedSettings));
+        }
+    }, []);
 
     useEffect(() => {
         const handleKeyPress = (e) => {
@@ -54,7 +64,7 @@ function App() {
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [settings.keyboardControls]);
 
     useEffect(() => {
@@ -97,9 +107,30 @@ function App() {
         }
     };
 
+    const handleVoiceCommand = () => {
+        if (!settings.voiceCommands) return;
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.onresult = (event) => {
+            const command = event.results[0][0].transcript.toLowerCase();
+            const moves = {
+                up: 'U',
+                down: 'D',
+                left: 'L',
+                right: 'R',
+                front: 'F',
+                back: 'B'
+            };
+            if (moves[command]) {
+                handleMove(moves[command]);
+            }
+        };
+        recognition.start();
+    };
+
     return (
         <div
-            className={`app ${theme} ${settings.highContrast ? 'high-contrast' : ''} ${settings.colorBlindMode ? 'color-blind' : ''}`}
+            className={`app ${theme} ${settings.highContrast ? 'high-contrast' : ''} ${settings.colorBlindMode ? 'color-blind' : ''} ${settings.rtlLayout ? 'rtl' : 'ltr'}`}
         >
             <header className="app-header">
                 <h1>Rubik&apos;s Cube Simulator & Tutor</h1>
@@ -126,19 +157,19 @@ function App() {
                         <option value="fr">Français</option>
                         <option value="de">Deutsch</option>
                         <option value="ja">日本語</option>
+                        <option value="ar">العربية</option>
                     </select>
                     <button onClick={toggleTheme} aria-label="Toggle theme">
                         {theme === 'light' ? '🌙' : '☀️'}
                     </button>
-                    <button
-                        onClick={() => updateSettings({ highContrast: !settings.highContrast })}
-                        aria-label="Toggle high contrast"
-                    >
-                        HC
-                    </button>
                     <button onClick={handleShare} aria-label="Share progress">
                         Share
                     </button>
+                    {settings.voiceCommands && (
+                        <button onClick={handleVoiceCommand} aria-label="Voice command">
+                            🎤
+                        </button>
+                    )}
                 </nav>
             </header>
 
@@ -231,6 +262,34 @@ function App() {
                                 }
                             />
                             Color Blind Mode
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={settings.voiceCommands}
+                                onChange={(e) =>
+                                    updateSettings({ voiceCommands: e.target.checked })
+                                }
+                            />
+                            Voice Commands
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={settings.hapticFeedback}
+                                onChange={(e) =>
+                                    updateSettings({ hapticFeedback: e.target.checked })
+                                }
+                            />
+                            Haptic Feedback
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={settings.rtlLayout}
+                                onChange={(e) => updateSettings({ rtlLayout: e.target.checked })}
+                            />
+                            RTL Layout
                         </label>
                     </div>
                 </div>

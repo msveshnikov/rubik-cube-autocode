@@ -120,3 +120,8 @@ https://rubik-cube-autocode.netlify.app/
 8. Community features
 9. AR/VR integration
 10. Mobile optimization
+
+# TODO
+
+-    fix WARNING: Too many active WebGL contexts. Oldest context will be lost.Understand this warningAI
+chunk-Z437FIQO.js?v=ffe38174:29747 WARNING: Too many active WebGL contexts. Oldest context will be lost.
