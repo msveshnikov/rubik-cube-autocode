@@ -2,6 +2,10 @@
 
 A web-based application to learn and master the Rubik's cube in 2 minutes.
 
+# DEMO
+
+https://rubik-cube-autocode.netlify.app/
+
 ## Features
 
 - 3D interactive Rubik's cube simulation
