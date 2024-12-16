@@ -1,6 +1,7 @@
 # Rubik's Cube Simulator & Tutor - Project Documentation
 
 ## Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [Architecture](#architecture)
 3. [Installation](#installation)
@@ -12,9 +13,13 @@
 
 ## Project Overview
 
-The Rubik's Cube Simulator & Tutor is a comprehensive web application designed to help users learn and master the Rubik's cube through an interactive 3D interface. The application combines modern web technologies to provide an engaging learning experience with real-time feedback and progress tracking.
+The Rubik's Cube Simulator & Tutor is a comprehensive web application designed to help users learn
+and master the Rubik's cube through an interactive 3D interface. The application combines modern web
+technologies to provide an engaging learning experience with real-time feedback and progress
+tracking.
 
 ### Core Objectives
+
 - Provide an intuitive 3D simulation of a Rubik's cube
 - Offer structured learning paths from beginner to advanced
 - Support multiple solving methods and techniques
@@ -24,6 +29,7 @@ The Rubik's Cube Simulator & Tutor is a comprehensive web application designed t
 ## Architecture
 
 ### Technical Stack
+
 - **Frontend Framework**: React.js 19.0.0
 - **3D Rendering**: Three.js with React Three Fiber
 - **State Management**: Zustand + Context API
@@ -33,6 +39,7 @@ The Rubik's Cube Simulator & Tutor is a comprehensive web application designed t
 - **Routing**: React Router DOM 7.0.2
 
 ### Project Structure
+
 ```
 src/
 ├── components/          # Reusable UI components
@@ -68,27 +75,32 @@ npm run build
 ## Module Interactions
 
 ### Core Components Flow
+
 1. **Cube.jsx**
-   - Manages 3D rendering and cube state
-   - Interfaces with Three.js
-   - Communicates with Controls.jsx
+
+    - Manages 3D rendering and cube state
+    - Interfaces with Three.js
+    - Communicates with Controls.jsx
 
 2. **Controls.jsx**
-   - Handles user input
-   - Updates cube state
-   - Validates moves
+
+    - Handles user input
+    - Updates cube state
+    - Validates moves
 
 3. **Tutorial.jsx**
-   - Provides step-by-step instructions
-   - Tracks progress
-   - Validates user solutions
+
+    - Provides step-by-step instructions
+    - Tracks progress
+    - Validates user solutions
 
 4. **Timer.jsx**
-   - Manages solving sessions
-   - Records statistics
-   - Integrates with ProgressContext
+    - Manages solving sessions
+    - Records statistics
+    - Integrates with ProgressContext
 
 ### Context Integration
+
 ```javascript
 // Example context usage
 import { useLocale } from '../context/LocaleContext';
@@ -96,16 +108,17 @@ import { useProgress } from '../context/ProgressContext';
 import { useTheme } from '../context/ThemeContext';
 
 const Component = () => {
-  const { locale, setLocale } = useLocale();
-  const { progress, updateProgress } = useProgress();
-  const { theme, toggleTheme } = useTheme();
-  // Component logic
+    const { locale, setLocale } = useLocale();
+    const { progress, updateProgress } = useProgress();
+    const { theme, toggleTheme } = useTheme();
+    // Component logic
 };
 ```
 
 ## Features
 
 ### Core Features
+
 - 3D interactive cube simulation
 - Real-time move validation
 - Step-by-step tutorials
@@ -115,6 +128,7 @@ const Component = () => {
 - Internationalization support
 
 ### Advanced Features
+
 - Algorithm visualization
 - Custom cube patterns
 - Speed-solving techniques
@@ -125,6 +139,7 @@ const Component = () => {
 ## Development Guide
 
 ### Code Style
+
 ```bash
 # Format code
 npm run format
@@ -134,6 +149,7 @@ npm run lint
 ```
 
 ### Best Practices
+
 1. Follow React hooks conventions
 2. Implement lazy loading for heavy components
 3. Optimize 3D rendering performance
@@ -141,18 +157,15 @@ npm run lint
 5. Write comprehensive tests
 
 ### Component Development
+
 ```javascript
 // Example component structure
 import React from 'react';
 import styles from './ComponentName.module.scss';
 
 const ComponentName = ({ props }) => {
-  // Component logic
-  return (
-    <div className={styles.container}>
-      {/* Component content */}
-    </div>
-  );
+    // Component logic
+    return <div className={styles.container}>{/* Component content */}</div>;
 };
 
 export default ComponentName;
@@ -161,6 +174,7 @@ export default ComponentName;
 ## Performance & Security
 
 ### Performance Optimization
+
 - Code splitting
 - Asset optimization
 - Lazy loading
@@ -168,6 +182,7 @@ export default ComponentName;
 - Memory management
 
 ### Security Measures
+
 - Input validation
 - XSS prevention
 - CSRF protection
@@ -177,11 +192,13 @@ export default ComponentName;
 ## Deployment
 
 ### Production Build
+
 ```bash
 npm run build
 ```
 
 ### Deployment Checklist
+
 1. Optimize assets
 2. Configure CDN
 3. Set up SSL
@@ -190,12 +207,6 @@ npm run build
 6. Monitor performance
 7. Set up error tracking
 
-### Browser Support
-- Chrome (latest 2 versions)
-- Firefox (latest 2 versions)
-- Safari (latest 2 versions)
-- Edge (latest 2 versions)
-- Mobile browsers
 
 ## License
 
@@ -203,4 +214,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-For more information or support, please refer to the [GitHub repository](https://github.com/your-repo/rubiks-cube-simulator) or contact the development team.
+For more information or support, please refer to the
+[GitHub repository](https://github.com/your-repo/rubiks-cube-simulator) or contact the development
+team.

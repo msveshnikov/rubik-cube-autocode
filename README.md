@@ -120,4 +120,3 @@ https://rubik-cube-autocode.netlify.app/
 8. Community features
 9. AR/VR integration
 10. Mobile optimization
-

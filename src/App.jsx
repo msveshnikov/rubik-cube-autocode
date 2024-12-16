@@ -1,8 +1,9 @@
-import { useState, lazy, Suspense, useContext } from 'react';
+import { useState, lazy, Suspense, useContext, useEffect } from 'react';
 import './App.css';
 import ThemeContext from './context/ThemeContext';
 import LocaleContext from './context/LocaleContext';
 import ProgressContext from './context/ProgressContext';
+import useCubeState from './hooks/useCubeState';
 
 const Cube = lazy(() => import('./components/Cube'));
 const Tutorial = lazy(() => import('./components/Tutorial'));
@@ -13,42 +14,62 @@ function App() {
     const { theme, toggleTheme } = useContext(ThemeContext);
     const { locale, setLocale } = useContext(LocaleContext);
     const { progress, updateProgress } = useContext(ProgressContext);
-
-    const [cubeState, setCubeState] = useState({
-        currentStep: progress?.currentStep || 0,
-        moves: [],
-        isSolved: false,
-        tutorialMode: true,
-        practiceMode: false,
-        pattern: 'classic'
-    });
+    const {
+        state: cubeState,
+        rotateFace,
+        applyMove,
+        resetCube,
+        undoMove,
+        toggleMode,
+        updateTimer
+    } = useCubeState();
 
     const [settings, setSettings] = useState({
         animationSpeed: 1,
         highContrast: false,
         language: locale,
         keyboardControls: true,
-        screenReaderEnabled: false
+        screenReaderEnabled: false,
+        hapticFeedback: true,
+        colorBlindMode: false,
+        autoRotate: false,
+        showHints: true
     });
 
-    const handleMove = (move) => {
-        setCubeState((prev) => {
-            const newState = {
-                ...prev,
-                moves: [...prev.moves, move]
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (!settings.keyboardControls) return;
+            const moves = {
+                ArrowUp: 'U',
+                ArrowDown: 'D',
+                ArrowLeft: 'L',
+                ArrowRight: 'R',
+                KeyF: 'F',
+                KeyB: 'B'
             };
-            updateProgress({ currentStep: prev.currentStep, moves: newState.moves });
-            return newState;
-        });
-    };
+            if (moves[e.code]) {
+                handleMove(moves[e.code]);
+            }
+        };
 
-    const toggleMode = (mode) => {
-        setCubeState((prev) => ({
-            ...prev,
-            tutorialMode: mode === 'tutorial',
-            practiceMode: mode === 'practice',
-            currentStep: mode === 'tutorial' ? prev.currentStep : 0
-        }));
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [settings.keyboardControls]);
+
+    useEffect(() => {
+        if (cubeState.practiceMode) {
+            const timer = setInterval(updateTimer, 100);
+            return () => clearInterval(timer);
+        }
+    }, [cubeState.practiceMode, updateTimer]);
+
+    const handleMove = (move) => {
+        if (settings.hapticFeedback && navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        rotateFace(move, 'clockwise');
+        applyMove(move);
     };
 
     const updateSettings = (newSettings) => {
@@ -57,38 +78,78 @@ function App() {
             if (newSettings.language) {
                 setLocale(newSettings.language);
             }
+            localStorage.setItem('cubeSettings', JSON.stringify(updated));
             return updated;
         });
     };
 
+    const handleShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: "Rubik's Cube Progress",
+                    text: `I've completed ${progress.currentStep} steps!`,
+                    url: window.location.href
+                });
+            } catch (error) {
+                console.error('Error sharing:', error);
+            }
+        }
+    };
+
     return (
-        <div className={`app ${theme} ${settings.highContrast ? 'high-contrast' : ''}`}>
+        <div
+            className={`app ${theme} ${settings.highContrast ? 'high-contrast' : ''} ${settings.colorBlindMode ? 'color-blind' : ''}`}
+        >
             <header className="app-header">
                 <h1>Rubik&apos;s Cube Simulator & Tutor</h1>
                 <nav className="app-nav">
-                    <button onClick={() => toggleMode('tutorial')}>Tutorial</button>
-                    <button onClick={() => toggleMode('practice')}>Practice</button>
+                    <button
+                        onClick={() => toggleMode('tutorial')}
+                        aria-pressed={cubeState.tutorialMode}
+                    >
+                        Tutorial
+                    </button>
+                    <button
+                        onClick={() => toggleMode('practice')}
+                        aria-pressed={cubeState.practiceMode}
+                    >
+                        Practice
+                    </button>
                     <select
                         value={settings.language}
                         onChange={(e) => updateSettings({ language: e.target.value })}
+                        aria-label="Select language"
                     >
                         <option value="en">English</option>
                         <option value="es">Español</option>
                         <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="ja">日本語</option>
                     </select>
-                    <button onClick={toggleTheme}>
-                        {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                    <button onClick={toggleTheme} aria-label="Toggle theme">
+                        {theme === 'light' ? '🌙' : '☀️'}
                     </button>
                     <button
                         onClick={() => updateSettings({ highContrast: !settings.highContrast })}
+                        aria-label="Toggle high contrast"
                     >
-                        High Contrast
+                        HC
+                    </button>
+                    <button onClick={handleShare} aria-label="Share progress">
+                        Share
                     </button>
                 </nav>
             </header>
 
             <main className="app-content">
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense
+                    fallback={
+                        <div className="loading" role="status">
+                            Loading...
+                        </div>
+                    }
+                >
                     <div className="cube-container">
                         <Cube
                             onMove={handleMove}
@@ -100,6 +161,8 @@ function App() {
                             onMove={handleMove}
                             settings={settings}
                             disabled={cubeState.isSolved}
+                            onUndo={undoMove}
+                            onReset={resetCube}
                         />
                     </div>
 
@@ -108,6 +171,7 @@ function App() {
                             currentStep={cubeState.currentStep}
                             moves={cubeState.moves}
                             settings={settings}
+                            onComplete={() => updateProgress({ completed: true })}
                         />
                     )}
 
@@ -116,6 +180,7 @@ function App() {
                             active={cubeState.practiceMode}
                             isSolved={cubeState.isSolved}
                             settings={settings}
+                            elapsedTime={cubeState.elapsedTime}
                         />
                     )}
                 </Suspense>
@@ -143,8 +208,31 @@ function App() {
                             onChange={(e) =>
                                 updateSettings({ animationSpeed: parseFloat(e.target.value) })
                             }
+                            aria-label="Animation speed"
                         />
                     </label>
+                    <div className="accessibility-options">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={settings.keyboardControls}
+                                onChange={(e) =>
+                                    updateSettings({ keyboardControls: e.target.checked })
+                                }
+                            />
+                            Keyboard Controls
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={settings.colorBlindMode}
+                                onChange={(e) =>
+                                    updateSettings({ colorBlindMode: e.target.checked })
+                                }
+                            />
+                            Color Blind Mode
+                        </label>
+                    </div>
                 </div>
             </footer>
         </div>

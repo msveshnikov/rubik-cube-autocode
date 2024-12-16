@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 const INITIAL_CUBE_STATE = {
     faces: {
@@ -16,13 +16,18 @@ const INITIAL_CUBE_STATE = {
     practiceMode: false,
     history: [],
     startTime: null,
-    elapsedTime: 0
+    elapsedTime: 0,
+    pattern: 'classic',
+    animationSpeed: 1,
+    isAnimating: false
 };
 
 export const useCubeState = () => {
     const [state, setState] = useState(INITIAL_CUBE_STATE);
 
     const rotateFace = useCallback((face, direction) => {
+        if (state.isAnimating) return;
+
         setState((prev) => {
             const newFaces = { ...prev.faces };
             const faceArray = [...prev.faces[face]];
@@ -31,15 +36,21 @@ export const useCubeState = () => {
                     ? [6, 3, 0, 7, 4, 1, 8, 5, 2].map((i) => faceArray[i])
                     : [2, 5, 8, 1, 4, 7, 0, 3, 6].map((i) => faceArray[i]);
             newFaces[face] = rotatedFace;
+
             return {
                 ...prev,
                 faces: newFaces,
                 moves: [...prev.moves, { face, direction }],
                 history: [...prev.history, { faces: prev.faces, moves: prev.moves }],
-                isSolved: checkIfSolved(newFaces)
+                isSolved: checkIfSolved(newFaces),
+                isAnimating: true
             };
         });
-    }, []);
+
+        setTimeout(() => {
+            setState((prev) => ({ ...prev, isAnimating: false }));
+        }, 500 / state.animationSpeed);
+    }, [state.isAnimating, state.animationSpeed]);
 
     const applyMove = useCallback((move) => {
         setState((prev) => ({
@@ -51,7 +62,10 @@ export const useCubeState = () => {
     }, []);
 
     const resetCube = useCallback(() => {
-        setState(INITIAL_CUBE_STATE);
+        setState((prev) => ({
+            ...INITIAL_CUBE_STATE,
+            animationSpeed: prev.animationSpeed
+        }));
     }, []);
 
     const undoMove = useCallback(() => {
@@ -73,7 +87,8 @@ export const useCubeState = () => {
             ...prev,
             tutorialMode: mode === 'tutorial',
             practiceMode: mode === 'practice',
-            startTime: mode === 'practice' ? Date.now() : null
+            startTime: mode === 'practice' ? Date.now() : null,
+            currentStep: mode === 'tutorial' ? prev.currentStep : 0
         }));
     }, []);
 
@@ -84,6 +99,22 @@ export const useCubeState = () => {
         }));
     }, []);
 
+    const setPattern = useCallback((pattern) => {
+        setState((prev) => ({ ...prev, pattern }));
+    }, []);
+
+    const setAnimationSpeed = useCallback((speed) => {
+        setState((prev) => ({ ...prev, animationSpeed: speed }));
+    }, []);
+
+    useEffect(() => {
+        let timer;
+        if (state.practiceMode && !state.isSolved) {
+            timer = setInterval(updateTimer, 100);
+        }
+        return () => clearInterval(timer);
+    }, [state.practiceMode, state.isSolved, updateTimer]);
+
     return {
         state,
         rotateFace,
@@ -91,7 +122,9 @@ export const useCubeState = () => {
         resetCube,
         undoMove,
         toggleMode,
-        updateTimer
+        updateTimer,
+        setPattern,
+        setAnimationSpeed
     };
 };
 
