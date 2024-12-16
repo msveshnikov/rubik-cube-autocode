@@ -25,32 +25,35 @@ const INITIAL_CUBE_STATE = {
 export const useCubeState = () => {
     const [state, setState] = useState(INITIAL_CUBE_STATE);
 
-    const rotateFace = useCallback((face, direction) => {
-        if (state.isAnimating) return;
+    const rotateFace = useCallback(
+        (face, direction) => {
+            if (state.isAnimating) return;
 
-        setState((prev) => {
-            const newFaces = { ...prev.faces };
-            const faceArray = [...prev.faces[face]];
-            const rotatedFace =
-                direction === 'clockwise'
-                    ? [6, 3, 0, 7, 4, 1, 8, 5, 2].map((i) => faceArray[i])
-                    : [2, 5, 8, 1, 4, 7, 0, 3, 6].map((i) => faceArray[i]);
-            newFaces[face] = rotatedFace;
+            setState((prev) => {
+                const newFaces = { ...prev.faces };
+                const faceArray = [...prev.faces[face]];
+                const rotatedFace =
+                    direction === 'clockwise'
+                        ? [6, 3, 0, 7, 4, 1, 8, 5, 2].map((i) => faceArray[i])
+                        : [2, 5, 8, 1, 4, 7, 0, 3, 6].map((i) => faceArray[i]);
+                newFaces[face] = rotatedFace;
 
-            return {
-                ...prev,
-                faces: newFaces,
-                moves: [...prev.moves, { face, direction }],
-                history: [...prev.history, { faces: prev.faces, moves: prev.moves }],
-                isSolved: checkIfSolved(newFaces),
-                isAnimating: true
-            };
-        });
+                return {
+                    ...prev,
+                    faces: newFaces,
+                    moves: [...prev.moves, { face, direction }],
+                    history: [...prev.history, { faces: prev.faces, moves: prev.moves }],
+                    isSolved: checkIfSolved(newFaces),
+                    isAnimating: true
+                };
+            });
 
-        setTimeout(() => {
-            setState((prev) => ({ ...prev, isAnimating: false }));
-        }, 500 / state.animationSpeed);
-    }, [state.isAnimating, state.animationSpeed]);
+            setTimeout(() => {
+                setState((prev) => ({ ...prev, isAnimating: false }));
+            }, 500 / state.animationSpeed);
+        },
+        [state.isAnimating, state.animationSpeed]
+    );
 
     const applyMove = useCallback((move) => {
         setState((prev) => ({

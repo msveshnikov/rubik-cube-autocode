@@ -95,7 +95,8 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
             return new Promise((resolve) => {
                 const startRotation = cubeGroup.rotation.clone();
                 const targetRotation = startRotation.clone();
-                const axis = face === 'U' || face === 'D' ? 'y' : face === 'R' || face === 'L' ? 'x' : 'z';
+                const axis =
+                    face === 'U' || face === 'D' ? 'y' : face === 'R' || face === 'L' ? 'x' : 'z';
                 const direction = face === 'U' || face === 'R' || face === 'F' ? 1 : -1;
 
                 targetRotation[axis] += (Math.PI / 2) * direction;
@@ -107,7 +108,8 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
                     const progress = Math.min(elapsed / duration, 1);
 
                     cubeGroup.rotation[axis] =
-                        startRotation[axis] + (targetRotation[axis] - startRotation[axis]) * progress;
+                        startRotation[axis] +
+                        (targetRotation[axis] - startRotation[axis]) * progress;
 
                     if (progress < 1) {
                         requestAnimationFrame(animate);
