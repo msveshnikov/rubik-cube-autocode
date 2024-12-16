@@ -19,11 +19,20 @@ const INITIAL_CUBE_STATE = {
     elapsedTime: 0,
     pattern: 'classic',
     animationSpeed: 1,
-    isAnimating: false
+    isAnimating: false,
+    customPatterns: [],
+    achievements: [],
+    solveMethod: 'beginner',
+    hapticFeedback: true,
+    offlineMode: false,
+    lastSyncTime: null
 };
 
 export const useCubeState = () => {
-    const [state, setState] = useState(INITIAL_CUBE_STATE);
+    const [state, setState] = useState(() => {
+        const savedState = localStorage.getItem('cubeState');
+        return savedState ? { ...INITIAL_CUBE_STATE, ...JSON.parse(savedState) } : INITIAL_CUBE_STATE;
+    });
 
     const rotateFace = useCallback(
         (face, direction) => {
@@ -38,7 +47,7 @@ export const useCubeState = () => {
                         : [2, 5, 8, 1, 4, 7, 0, 3, 6].map((i) => faceArray[i]);
                 newFaces[face] = rotatedFace;
 
-                return {
+                const newState = {
                     ...prev,
                     faces: newFaces,
                     moves: [...prev.moves, { face, direction }],
@@ -46,6 +55,12 @@ export const useCubeState = () => {
                     isSolved: checkIfSolved(newFaces),
                     isAnimating: true
                 };
+
+                if (prev.hapticFeedback && window.navigator?.vibrate) {
+                    window.navigator.vibrate(50);
+                }
+
+                return newState;
             });
 
             setTimeout(() => {
@@ -55,19 +70,42 @@ export const useCubeState = () => {
         [state.isAnimating, state.animationSpeed]
     );
 
-    const applyMove = useCallback((move) => {
+    const applyAlgorithm = useCallback((algorithm) => {
+        algorithm.split(' ').forEach((move) => {
+            const direction = move.includes("'") ? 'counterclockwise' : 'clockwise';
+            const face = move.charAt(0);
+            rotateFace(face, direction);
+        });
+    }, [rotateFace]);
+
+    const setSolveMethod = useCallback((method) => {
+        setState((prev) => ({ ...prev, solveMethod: method }));
+    }, []);
+
+    const saveCustomPattern = useCallback((pattern) => {
         setState((prev) => ({
             ...prev,
-            moves: [...prev.moves, move],
-            currentStep: prev.tutorialMode ? prev.currentStep + 1 : prev.currentStep,
-            history: [...prev.history, { faces: prev.faces, moves: prev.moves }]
+            customPatterns: [...prev.customPatterns, pattern]
         }));
     }, []);
+
+    const toggleHapticFeedback = useCallback(() => {
+        setState((prev) => ({ ...prev, hapticFeedback: !prev.hapticFeedback }));
+    }, []);
+
+    const syncProgress = useCallback(async () => {
+        if (!state.offlineMode) {
+            setState((prev) => ({ ...prev, lastSyncTime: Date.now() }));
+        }
+    }, [state.offlineMode]);
 
     const resetCube = useCallback(() => {
         setState((prev) => ({
             ...INITIAL_CUBE_STATE,
-            animationSpeed: prev.animationSpeed
+            animationSpeed: prev.animationSpeed,
+            hapticFeedback: prev.hapticFeedback,
+            customPatterns: prev.customPatterns,
+            achievements: prev.achievements
         }));
     }, []);
 
@@ -102,14 +140,6 @@ export const useCubeState = () => {
         }));
     }, []);
 
-    const setPattern = useCallback((pattern) => {
-        setState((prev) => ({ ...prev, pattern }));
-    }, []);
-
-    const setAnimationSpeed = useCallback((speed) => {
-        setState((prev) => ({ ...prev, animationSpeed: speed }));
-    }, []);
-
     useEffect(() => {
         let timer;
         if (state.practiceMode && !state.isSolved) {
@@ -118,16 +148,22 @@ export const useCubeState = () => {
         return () => clearInterval(timer);
     }, [state.practiceMode, state.isSolved, updateTimer]);
 
+    useEffect(() => {
+        localStorage.setItem('cubeState', JSON.stringify(state));
+    }, [state]);
+
     return {
         state,
         rotateFace,
-        applyMove,
         resetCube,
         undoMove,
         toggleMode,
         updateTimer,
-        setPattern,
-        setAnimationSpeed
+        applyAlgorithm,
+        setSolveMethod,
+        saveCustomPattern,
+        toggleHapticFeedback,
+        syncProgress
     };
 };
 

@@ -15,56 +15,85 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
     const [raycaster] = useState(new THREE.Raycaster());
     const [mouse] = useState(new THREE.Vector2());
     const { state, rotateFace } = useCubeState();
+    const [touchStart, setTouchStart] = useState(null);
 
-    const createCubelet = useCallback((x, y, z, size, gap, colors) => {
-        const geometry = new THREE.BoxGeometry(size, size, size);
-        const materials = colors.map(
-            (color) =>
-                new THREE.MeshPhongMaterial({
-                    color: new THREE.Color(color),
-                    shininess: 30,
-                    specular: new THREE.Color(0x444444)
-                })
-        );
-        const cubelet = new THREE.Mesh(geometry, materials);
-        cubelet.position.set(x * (size + gap), y * (size + gap), z * (size + gap));
-        cubelet.userData = { x, y, z };
-        return cubelet;
-    }, []);
+    const createCubelet = useCallback(
+        (x, y, z, size, gap, colors) => {
+            const geometry = new THREE.BoxGeometry(size, size, size);
+            const materials = colors.map(
+                (color) =>
+                    new THREE.MeshPhongMaterial({
+                        color: new THREE.Color(color),
+                        shininess: 30,
+                        specular: new THREE.Color(0x444444),
+                        transparent: settings.highContrast,
+                        opacity: settings.highContrast ? 0.9 : 1
+                    })
+            );
+            const cubelet = new THREE.Mesh(geometry, materials);
+            cubelet.position.set(x * (size + gap), y * (size + gap), z * (size + gap));
+            cubelet.userData = { x, y, z };
+            cubelet.castShadow = true;
+            cubelet.receiveShadow = true;
+            return cubelet;
+        },
+        [settings.highContrast]
+    );
 
     const createCube = useCallback(() => {
         const group = new THREE.Group();
         const size = 1;
         const gap = 0.1;
+        const colors =
+            pattern === 'classic'
+                ? {
+                      right: 0xff0000,
+                      left: 0xff8c00,
+                      top: 0xffffff,
+                      bottom: 0xffff00,
+                      front: 0x00ff00,
+                      back: 0x0000ff
+                  }
+                : {
+                      right: 0x00ff00,
+                      left: 0x0000ff,
+                      top: 0xff0000,
+                      bottom: 0xff8c00,
+                      front: 0xffffff,
+                      back: 0xffff00
+                  };
 
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
-                    const colors = [
-                        x === 1 ? 0xff0000 : 0x282828,
-                        x === -1 ? 0xff8c00 : 0x282828,
-                        y === 1 ? 0xffffff : 0x282828,
-                        y === -1 ? 0xffff00 : 0x282828,
-                        z === 1 ? 0x00ff00 : 0x282828,
-                        z === -1 ? 0x0000ff : 0x282828
+                    const cubeColors = [
+                        x === 1 ? colors.right : 0x282828,
+                        x === -1 ? colors.left : 0x282828,
+                        y === 1 ? colors.top : 0x282828,
+                        y === -1 ? colors.bottom : 0x282828,
+                        z === 1 ? colors.front : 0x282828,
+                        z === -1 ? colors.back : 0x282828
                     ];
-
-                    const cubelet = createCubelet(x, y, z, size, gap, colors);
+                    const cubelet = createCubelet(x, y, z, size, gap, cubeColors);
                     group.add(cubelet);
                 }
             }
         }
-
         return group;
-    }, [createCubelet]);
+    }, [createCubelet, pattern]);
 
-    const handleMouseDown = useCallback(
+    const handleInteractionStart = useCallback(
         (event) => {
             if (isAnimating || !cubeGroup) return;
 
+            const coords = event.touches ? event.touches[0] : event;
             const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            mouse.x = ((coords.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((coords.clientY - rect.top) / rect.height) * 2 + 1;
+
+            if (event.touches) {
+                setTouchStart({ x: coords.clientX, y: coords.clientY });
+            }
 
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(cubeGroup.children);
@@ -91,7 +120,7 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
     };
 
     const animateRotation = useCallback(
-        (face, angle) => {
+        async (face, angle) => {
             return new Promise((resolve) => {
                 const startRotation = cubeGroup.rotation.clone();
                 const targetRotation = startRotation.clone();
@@ -106,10 +135,11 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
                 const animate = () => {
                     const elapsed = Date.now() - startTime;
                     const progress = Math.min(elapsed / duration, 1);
+                    const easeProgress = 1 - Math.cos((progress * Math.PI) / 2);
 
                     cubeGroup.rotation[axis] =
                         startRotation[axis] +
-                        (targetRotation[axis] - startRotation[axis]) * progress;
+                        (targetRotation[axis] - startRotation[axis]) * easeProgress;
 
                     if (progress < 1) {
                         requestAnimationFrame(animate);
@@ -117,7 +147,6 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
                         resolve();
                     }
                 };
-
                 animate();
             });
         },
@@ -126,7 +155,7 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
 
     const handleMove = useCallback(
         async (face) => {
-            if (isAnimating || !cubeGroup) return;
+            if (isAnimating || !cubeGroup || (tutorialMode && !state.moves.includes(face))) return;
             setIsAnimating(true);
 
             await animateRotation(face, Math.PI / 2);
@@ -135,7 +164,7 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
 
             setIsAnimating(false);
         },
-        [animateRotation, cubeGroup, isAnimating, onMove, rotateFace]
+        [animateRotation, cubeGroup, isAnimating, onMove, rotateFace, state.moves, tutorialMode]
     );
 
     useEffect(() => {
@@ -151,20 +180,28 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
             );
             newCamera.position.set(5, 5, 7);
 
-            const newRenderer = new THREE.WebGLRenderer({ antialias: true });
+            const newRenderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true,
+                powerPreference: 'high-performance'
+            });
             newRenderer.setSize(window.innerWidth, window.innerHeight);
             newRenderer.shadowMap.enabled = true;
+            newRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
             mountRef.current.appendChild(newRenderer.domElement);
 
             const newControls = new OrbitControls(newCamera, newRenderer.domElement);
             newControls.enableDamping = true;
             newControls.dampingFactor = 0.05;
+            newControls.rotateSpeed = 0.8;
+            newControls.enablePan = false;
 
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             newScene.add(ambientLight);
 
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(10, 10, 10);
+            directionalLight.castShadow = true;
             newScene.add(directionalLight);
 
             const group = createCube();
@@ -176,10 +213,13 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
             setCubeGroup(group);
             setControls(newControls);
 
-            newRenderer.domElement.addEventListener('mousedown', handleMouseDown);
+            const element = newRenderer.domElement;
+            element.addEventListener('mousedown', handleInteractionStart);
+            element.addEventListener('touchstart', handleInteractionStart);
 
             return () => {
-                newRenderer.domElement.removeEventListener('mousedown', handleMouseDown);
+                element.removeEventListener('mousedown', handleInteractionStart);
+                element.removeEventListener('touchstart', handleInteractionStart);
             };
         };
 
@@ -191,7 +231,7 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
                 renderer.dispose();
             }
         };
-    }, [createCube, handleMouseDown, renderer, settings.highContrast]);
+    }, [createCube, handleInteractionStart, renderer, settings.highContrast]);
 
     useEffect(() => {
         const animate = () => {
@@ -201,7 +241,6 @@ const Cube = ({ onMove, settings, pattern, tutorialMode }) => {
                 renderer.render(scene, camera);
             }
         };
-
         animate();
     }, [camera, controls, renderer, scene]);
 
