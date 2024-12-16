@@ -14,10 +14,18 @@
                 padding: 0;
                 box-sizing: border-box;
             }
+            :root {
+                --primary-color: #6366f1;
+                --secondary-color: #a855f7;
+                --text-color: #333;
+                --white: #fff;
+                --background-light: #f8fafc;
+                --background-dark: #1f2937;
+            }
             body {
                 font-family: 'Poppins', sans-serif;
                 line-height: 1.6;
-                color: #333;
+                color: var(--text-color);
                 overflow-x: hidden;
             }
             .hero {
@@ -38,22 +46,22 @@
                 left: 0;
                 right: 0;
                 height: 100px;
-                background: white;
+                background: var(--white);
                 clip-path: polygon(0 50%, 100% 0, 100% 100%, 0% 100%);
             }
             .hero h1 {
-                font-size: 3.5rem;
+                font-size: clamp(2.5rem, 5vw, 3.5rem);
                 margin-bottom: 1rem;
                 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             }
             .hero p {
-                font-size: 1.3rem;
+                font-size: clamp(1rem, 2vw, 1.3rem);
                 max-width: 700px;
                 margin: 0 auto 2rem;
             }
             .cta-button {
-                background: #fff;
-                color: #6366f1;
+                background: var(--white);
+                color: var(--primary-color);
                 padding: 1.2rem 2.5rem;
                 border-radius: 30px;
                 text-decoration: none;
@@ -82,81 +90,87 @@
             .feature-card {
                 padding: 2.5rem;
                 border-radius: 15px;
-                background: rgba(255, 255, 255, 0.95);
+                background: var(--white);
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
                 text-align: center;
                 transition: transform 0.3s;
-                backdrop-filter: blur(10px);
             }
             .feature-card:hover {
                 transform: translateY(-10px);
             }
-            .pricing {
-                background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-                padding: 6rem 2rem;
-                position: relative;
+            .feature-card h3 {
+                color: var(--primary-color);
+                margin-bottom: 1rem;
             }
-            .pricing-grid {
+            .tutorial-section {
+                background: var(--background-light);
+                padding: 6rem 2rem;
+                text-align: center;
+            }
+            .tutorial-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 2.5rem;
+                gap: 2rem;
                 max-width: 1200px;
-                margin: 3rem auto 0;
+                margin: 3rem auto;
             }
-            .pricing-card {
-                background: white;
-                padding: 3rem 2rem;
-                border-radius: 20px;
-                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-                text-align: center;
-                transition: all 0.3s;
-            }
-            .pricing-card:hover {
-                transform: scale(1.03);
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            }
-            .price {
-                font-size: 3rem;
-                font-weight: 700;
-                margin: 1.5rem 0;
-                color: #6366f1;
+            .tutorial-card {
+                background: var(--white);
+                padding: 2rem;
+                border-radius: 15px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             }
             .footer {
-                background: #1f2937
-                    url('https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=1600')
-                    center/cover;
-                color: white;
+                background: var(--background-dark);
+                color: var(--white);
                 padding: 3rem 2rem;
                 text-align: center;
-                position: relative;
             }
-            .footer::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(31, 41, 55, 0.9);
+            .footer-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 2rem;
             }
-            .footer p {
-                position: relative;
-                z-index: 1;
+            .footer-links {
+                list-style: none;
+            }
+            .footer-links a {
+                color: var(--white);
+                text-decoration: none;
+                opacity: 0.8;
+                transition: opacity 0.3s;
+            }
+            .footer-links a:hover {
+                opacity: 1;
             }
             @media (max-width: 768px) {
-                .hero h1 {
-                    font-size: 2.5rem;
-                }
-                .features-grid,
-                .pricing-grid {
-                    grid-template-columns: 1fr;
-                }
                 .hero {
                     padding: 6rem 1rem;
                 }
                 .features,
-                .pricing {
+                .tutorial-section {
                     padding: 4rem 1rem;
+                }
+                .features-grid,
+                .tutorial-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --text-color: #e5e7eb;
+                    --background-light: #111827;
+                    --white: #1f2937;
+                }
+                body {
+                    background: #0f172a;
+                }
+                .feature-card,
+                .tutorial-card {
+                    background: #1f2937;
+                    color: #e5e7eb;
                 }
             }
         </style>
@@ -165,83 +179,70 @@
         <section class="hero">
             <h1>Master the Rubik's Cube in 2 Minutes</h1>
             <p>
-                Interactive 3D simulator with step-by-step tutorials, real-time validation, and
-                progress tracking
+                Learn to solve the Rubik's cube with our interactive 3D simulator and step-by-step
+                tutorials
             </p>
-            <a href="#" class="cta-button">Start Learning Now</a>
+            <a href="#" class="cta-button">Start Learning</a>
         </section>
 
         <section class="features">
-            <h2
-                style="
-                    text-align: center;
-                    color: white;
-                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-                "
-            >
-                Key Features
-            </h2>
+            <h2>Key Features</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <h3>3D Interactive Simulation</h3>
-                    <p>Realistic cube manipulation with smooth controls and animations</p>
+                    <h3>3D Interactive Cube</h3>
+                    <p>Realistic simulation with smooth controls</p>
                 </div>
                 <div class="feature-card">
                     <h3>Step-by-Step Tutorial</h3>
-                    <p>Learn from beginner to advanced with guided instructions</p>
+                    <p>Learn from beginner to advanced</p>
                 </div>
                 <div class="feature-card">
                     <h3>Progress Tracking</h3>
-                    <p>Monitor your improvement and unlock achievements</p>
+                    <p>Monitor your improvement</p>
                 </div>
                 <div class="feature-card">
                     <h3>Multiple Methods</h3>
-                    <p>Master CFOP, Roux, and ZZ solving techniques</p>
+                    <p>CFOP, Roux, and ZZ techniques</p>
                 </div>
             </div>
         </section>
 
-        <section class="pricing">
-            <h2 style="text-align: center">Pricing Plans</h2>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <h3>Basic</h3>
-                    <div class="price">Free</div>
-                    <ul style="list-style: none">
-                        <li>3D Cube Simulation</li>
-                        <li>Basic Tutorials</li>
-                        <li>Progress Tracking</li>
-                        <li>Community Access</li>
-                    </ul>
-                    <a href="#" class="cta-button" style="margin-top: 2rem">Get Started</a>
+        <section class="tutorial-section">
+            <h2>Learning Path</h2>
+            <div class="tutorial-grid">
+                <div class="tutorial-card">
+                    <h3>Beginner</h3>
+                    <p>Master the basics with our intuitive guide</p>
                 </div>
-                <div class="pricing-card">
-                    <h3>Pro</h3>
-                    <div class="price">$9.99</div>
-                    <ul style="list-style: none">
-                        <li>All Basic Features</li>
-                        <li>Advanced Algorithms</li>
-                        <li>Speed Solving Techniques</li>
-                        <li>Custom Patterns</li>
-                    </ul>
-                    <a href="#" class="cta-button" style="margin-top: 2rem">Upgrade Now</a>
+                <div class="tutorial-card">
+                    <h3>Intermediate</h3>
+                    <p>Learn advanced algorithms and techniques</p>
                 </div>
-                <div class="pricing-card">
-                    <h3>Master</h3>
-                    <div class="price">$19.99</div>
-                    <ul style="list-style: none">
-                        <li>All Pro Features</li>
-                        <li>AR/VR Support</li>
-                        <li>1-on-1 Coaching</li>
-                        <li>Priority Support</li>
-                    </ul>
-                    <a href="#" class="cta-button" style="margin-top: 2rem">Go Master</a>
+                <div class="tutorial-card">
+                    <h3>Advanced</h3>
+                    <p>Perfect your speed-solving skills</p>
                 </div>
             </div>
         </section>
 
         <footer class="footer">
-            <p>© 2024 Rubik's Cube Simulator & Tutor. All rights reserved.</p>
+            <div class="footer-content">
+                <div>
+                    <h3>Rubik's Cube Simulator</h3>
+                    <p>Learn, practice, and master</p>
+                </div>
+                <ul class="footer-links">
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Progress</a></li>
+                </ul>
+                <ul class="footer-links">
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <p style="margin-top: 2rem">© 2024 Rubik's Cube Simulator & Tutor</p>
         </footer>
     </body>
 </html>
