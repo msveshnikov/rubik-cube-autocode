@@ -4,34 +4,34 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 
 ## Features
 
--   3D interactive Rubik's cube simulation
--   Step-by-step beginner's tutorial
--   Real-time move validation
--   Basic to advanced solving algorithms
--   Practice mode with timer
--   Progress tracking
--   Mobile-responsive design
+- 3D interactive Rubik's cube simulation
+- Step-by-step beginner's tutorial
+- Real-time move validation
+- Basic to advanced solving algorithms
+- Practice mode with timer
+- Progress tracking
+- Mobile-responsive design
 
 ## Technical Stack
 
--   React.js for UI components
--   Three.js for 3D cube rendering
--   Vite for build tooling
--   CSS modules for styling
--   Local storage for progress saving
+- React.js for UI components
+- Three.js for 3D cube rendering
+- Vite for build tooling
+- CSS modules for styling
+- Local storage for progress saving
 
 ## Planned Features
 
--   [ ] Algorithm visualization
--   [ ] Custom cube patterns
--   [ ] Speed-solving techniques
--   [ ] Community sharing
--   [ ] Multiple solving methods
-    -   CFOP
-    -   Roux
-    -   ZZ method
--   [ ] Achievement system
--   [ ] Offline support
+- [ ] Algorithm visualization
+- [ ] Custom cube patterns
+- [ ] Speed-solving techniques
+- [ ] Community sharing
+- [ ] Multiple solving methods
+    - CFOP
+    - Roux
+    - ZZ method
+- [ ] Achievement system
+- [ ] Offline support
 
 ## Design Goals
 
@@ -62,19 +62,19 @@ A web-based application to learn and master the Rubik's cube in 2 minutes.
 
 ## Performance Considerations
 
--   Optimized 3D rendering
--   Lazy loading of advanced features
--   Efficient state management
--   Minimal bundle size
--   Browser compatibility
+- Optimized 3D rendering
+- Lazy loading of advanced features
+- Efficient state management
+- Minimal bundle size
+- Browser compatibility
 
 ## Accessibility
 
--   Keyboard controls
--   Screen reader support
--   High contrast mode
--   Customizable animation speeds
--   Multi-language support
+- Keyboard controls
+- Screen reader support
+- High contrast mode
+- Customizable animation speeds
+- Multi-language support
 
 ## Development Roadmap
 

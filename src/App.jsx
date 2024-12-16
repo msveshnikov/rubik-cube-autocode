@@ -1,10 +1,10 @@
-import { useState, lazy, Suspense } from "react";
-import "./App.css";
+import { useState, lazy, Suspense } from 'react';
+import './App.css';
 
-const Cube = lazy(() => import("./components/Cube"));
-const Tutorial = lazy(() => import("./components/Tutorial"));
-const Controls = lazy(() => import("./components/Controls"));
-const Timer = lazy(() => import("./components/Timer"));
+const Cube = lazy(() => import('./components/Cube'));
+const Tutorial = lazy(() => import('./components/Tutorial'));
+const Controls = lazy(() => import('./components/Controls'));
+const Timer = lazy(() => import('./components/Timer'));
 
 function App() {
     const [cubeState, setCubeState] = useState({
@@ -12,34 +12,34 @@ function App() {
         moves: [],
         isSolved: false,
         tutorialMode: true,
-        practiceMode: false,
+        practiceMode: false
     });
 
     const [settings, setSettings] = useState({
         animationSpeed: 1,
         highContrast: false,
-        language: "en",
+        language: 'en'
     });
 
     const handleMove = (move) => {
         setCubeState((prev) => ({
             ...prev,
-            moves: [...prev.moves, move],
+            moves: [...prev.moves, move]
         }));
     };
 
     const toggleMode = (mode) => {
         setCubeState((prev) => ({
             ...prev,
-            tutorialMode: mode === "tutorial",
-            practiceMode: mode === "practice",
+            tutorialMode: mode === 'tutorial',
+            practiceMode: mode === 'practice'
         }));
     };
 
     const updateSettings = (newSettings) => {
         setSettings((prev) => ({
             ...prev,
-            ...newSettings,
+            ...newSettings
         }));
     };
 
@@ -48,9 +48,11 @@ function App() {
             <header className="app-header">
                 <h1>Rubik's Cube Simulator & Tutor</h1>
                 <nav>
-                    <button onClick={() => toggleMode("tutorial")}>Tutorial</button>
-                    <button onClick={() => toggleMode("practice")}>Practice</button>
-                    <button onClick={() => updateSettings({ highContrast: !settings.highContrast })}>
+                    <button onClick={() => toggleMode('tutorial')}>Tutorial</button>
+                    <button onClick={() => toggleMode('practice')}>Practice</button>
+                    <button
+                        onClick={() => updateSettings({ highContrast: !settings.highContrast })}
+                    >
                         High Contrast
                     </button>
                 </nav>
@@ -63,7 +65,9 @@ function App() {
                         <Controls onMove={handleMove} />
                     </div>
 
-                    {cubeState.tutorialMode && <Tutorial currentStep={cubeState.currentStep} moves={cubeState.moves} />}
+                    {cubeState.tutorialMode && (
+                        <Tutorial currentStep={cubeState.currentStep} moves={cubeState.moves} />
+                    )}
 
                     {cubeState.practiceMode && <Timer active={cubeState.practiceMode} />}
                 </Suspense>
